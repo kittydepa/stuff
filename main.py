@@ -1,0 +1,67 @@
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name, guess_lexer
+from pygments.formatters import HtmlFormatter
+from pygments.util import ClassNotFound
+
+# 🔧 === Manually configure these ===
+input_file = "example.m"              # Input file path
+output_file = "highlighted.html"      # Output HTML file
+language = "objective-c"              # Language for syntax highlighting
+show_line_numbers = True              # Toggle for line numbers
+
+def convert_code_to_html(input_file, output_file, language=None, show_lines=False):
+    # Read the code
+    with open(input_file, 'r', encoding='utf-8') as f:
+        code = f.read()
+
+    # Determine the lexer
+    try:
+        if language:
+            lexer = get_lexer_by_name(language, stripall=True)
+        else:
+            lexer = guess_lexer(code)
+    except ClassNotFound:
+        print(f"⚠️  Language '{language}' not recognized. Falling back to auto-detection.")
+        lexer = guess_lexer(code)
+
+    # Formatter using 'autumn' style with inline styles
+    formatter = HtmlFormatter(
+        style='autumn',
+        nowrap=True,        # Don't wrap in full HTML document
+        noclasses=True,     # Use inline styles
+        linenos=False       # We'll handle line numbers manually
+    )
+
+    # Syntax-highlighted HTML
+    highlighted_code = highlight(code, lexer, formatter)
+
+    # Build line number column (unstyled, no leading spaces)
+    if show_lines:
+        num_lines = code.count('\n') + 1
+        line_number_html = "\n".join(str(i + 1) for i in range(num_lines))
+        final_html = (
+            '<!-- HTML generated using hilite.me -->'
+            '<div style="background: #ffffff; overflow:auto;width:auto;'
+            'border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">'
+            '<table><tr>'
+            f'<td><pre style="margin: 0; line-height: 125%;">{line_number_html}</pre></td>'
+            f'<td><pre style="margin: 0; line-height: 125%;"><span></span>{highlighted_code}</pre></td>'
+            '</tr></table></div>'
+        )
+    else:
+        # No line numbers: plain hilite.me-style wrapper
+        final_html = (
+            '<!-- HTML generated using hilite.me -->'
+            '<div style="background: #ffffff; overflow:auto;width:auto;'
+            'border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">'
+            f'<pre style="margin: 0; line-height: 125%;"><span></span>{highlighted_code}</pre></div>'
+        )
+
+    # Save the HTML
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(final_html)
+
+    print(f"✅ HTML saved to: {output_file}")
+
+# Run the function
+convert_code_to_html(input_file, output_file, language, show_line_numbers)
