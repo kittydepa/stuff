@@ -61,7 +61,7 @@ def convert_code_to_html(input_file, output_file, language=None, show_lines=Fals
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(final_html)
 
-    print(f"✅ HTML saved to: {output_file}")
+    print(f"HTML saved to: {output_file}")
 
 # Run the function
 convert_code_to_html(input_file, output_file, language, show_line_numbers)
